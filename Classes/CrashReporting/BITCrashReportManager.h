@@ -60,7 +60,8 @@ typedef enum {
   HockeyAPIReceivedEmptyResponse,
   HockeyAPIErrorWithStatusCode
 } HockeyErrorReason;
-static NSString *kHockeyErrorDomain = @"HockeyErrorDomain";
+
+extern NSString * const kHockeyErrorDomain;
 
 
 typedef enum HockeyCrashAlertType {
