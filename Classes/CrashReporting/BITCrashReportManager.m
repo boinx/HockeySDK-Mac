@@ -39,7 +39,7 @@
 #define SDK_NAME @"HockeySDK-Mac"
 #define SDK_VERSION @"1.0"
 
-NSString * const kHockeyErrorDomain = @"HockeyErrorDomain";
+NSString *const kHockeyErrorDomain = @"HockeyErrorDomain";
 
 /**
  * @internal
@@ -469,7 +469,7 @@ NSString * const kHockeyErrorDomain = @"HockeyErrorDomain";
         
         [_crashReportUI askCrashReportDetails];
       } else {
-        [self sendReportWithCrash:crashReport crashDescription:nil];
+        [self sendReportWithCrash:crashFile crashDescription:nil];
       }
     } else {
       if (![self hasNonApprovedCrashReports]) {
