@@ -2,7 +2,7 @@
  * Author: Andreas Linde <mail@andreaslinde.de>
  *         Kent Sutherland
  *
- * Copyright (c) 2012 HockeyApp, Bit Stadium GmbH.
+ * Copyright (c) 2012-2013 HockeyApp, Bit Stadium GmbH.
  * Copyright (c) 2011 Andreas Linde & Kent Sutherland.
  * All rights reserved.
  *
@@ -37,7 +37,6 @@
 #import <objc/runtime.h>
 
 #define SDK_NAME @"HockeySDK-Mac"
-#define SDK_VERSION @"1.0"
 
 NSString *const kHockeyErrorDomain = @"HockeyErrorDomain";
 
@@ -134,6 +133,7 @@ NSString *const kHockeyErrorDomain = @"HockeyErrorDomain";
     _crashFiles = [[NSMutableArray alloc] init];
     _crashesDir = nil;
     
+    _invokedReturnToMainApplication = NO;
     self.delegate = nil;
     self.companyName = @"";
     
@@ -345,6 +345,12 @@ NSString *const kHockeyErrorDomain = @"HockeyErrorDomain";
 }
 
 - (void)returnToMainApplication {
+  if (_invokedReturnToMainApplication) {
+    return;
+  }
+  
+  _invokedReturnToMainApplication = YES;
+  
   if (self.delegate != nil && [self.delegate respondsToSelector:@selector(showMainApplicationWindow)]) {
     [self.delegate showMainApplicationWindow];
   } else {
@@ -437,9 +443,13 @@ NSString *const kHockeyErrorDomain = @"HockeyErrorDomain";
 #pragma mark - Crash Report Processing
 
 - (void)startManager {
+  HockeySDKLog(@"Info: Start CrashReportManager startManager");
+
   BOOL returnToApp = NO;
   
   if ([self hasPendingCrashReport]) {
+    HockeySDKLog(@"Info: Pending crash reports found.");
+    
     NSError* error = nil;
     NSString *crashReport = nil;
     
@@ -625,14 +635,18 @@ NSString *const kHockeyErrorDomain = @"HockeyErrorDomain";
   NSMutableURLRequest *request = nil;
   NSString *boundary = @"----FOO";
   
-  request = [NSMutableURLRequest requestWithURL:
-             [NSURL URLWithString:[NSString stringWithFormat:@"%@api/2/apps/%@/crashes?sdk=%@&sdk_version=%@&feedbackEnabled=no",
-                                   _submissionURL,
-                                   [self.appIdentifier stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
-                                   SDK_NAME,
-                                   SDK_VERSION
-                                   ]
-              ]];
+  HockeySDKLog(@"Info: Crash XML:\n%@", xml);
+  
+  NSString *url = [NSString stringWithFormat:@"%@api/2/apps/%@/crashes?sdk=%@&sdk_version=%@&feedbackEnabled=no",
+                   _submissionURL,
+                   [self.appIdentifier stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding],
+                   SDK_NAME,
+                   [HOCKEYSDK_BUNDLE objectForInfoDictionaryKey:@"CFBundleShortVersionString"]
+                   ];
+  
+  HockeySDKLog(@"Info: Sending report to %@", url);
+
+  request = [NSMutableURLRequest requestWithURL:[NSURL URLWithString:url]];
   
   [request setValue:SDK_NAME forHTTPHeaderField:@"User-Agent"];
   [request setValue:@"gzip" forHTTPHeaderField:@"Accept-Encoding"];

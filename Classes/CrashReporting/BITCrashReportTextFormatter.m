@@ -4,9 +4,9 @@
  *  Damian Morris <damian@moso.com.au>
  *  Andreas Linde <mail@andreaslinde.de>
  *
- * Copyright (c) 2008-2012 Plausible Labs Cooperative, Inc.
+ * Copyright (c) 2008-2013 Plausible Labs Cooperative, Inc.
  * Copyright (c) 2010 MOSO Corporation, Pty Ltd.
- * Copyright (c) 2012 HockeyApp, Bit Stadium GmbH.
+ * Copyright (c) 2012-2013 HockeyApp, Bit Stadium GmbH.
  * All rights reserved.
  *
  * Permission is hereby granted, free of charge, to any person
@@ -395,9 +395,12 @@ NSInteger binaryImageSort(id binary1, id binary2, void *context);
             }
         }
 
-        /* Determine if this is the main executable */
+        /* Determine if this is the main executable or an app specific framework*/
         NSString *binaryDesignator = @" ";
-        if ([imageInfo.imageName isEqual: report.processInfo.processPath])
+        NSString *imagePath = [imageInfo.imageName stringByStandardizingPath];
+        NSString *appBundleContentsPath = [[report.processInfo.processPath stringByDeletingLastPathComponent] stringByDeletingLastPathComponent];
+
+        if ([imagePath isEqual: report.processInfo.processPath] || [imagePath hasPrefix:appBundleContentsPath])
             binaryDesignator = @"+";
         
         /* base_address - terminating_address [designator]file_name arch <uuid> file_path */
@@ -561,7 +564,7 @@ NSInteger binaryImageSort(id binary1, id binary2, void *context);
             index += range.length - 1;
         }
         if (index > 32) {
-            imageName = [NSString stringWithFormat:@"%@...", [imageName substringToIndex:index - 1]];
+            imageName = [NSString stringWithFormat:@"%@... ", [imageName substringToIndex:index - 1]];
             index += 3;
             break;
         }

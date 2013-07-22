@@ -2,7 +2,7 @@
  * Author: Andreas Linde <mail@andreaslinde.de>
  *         Kent Sutherland
  *
- * Copyright (c) 2012 HockeyApp, Bit Stadium GmbH.
+ * Copyright (c) 2012-2013 HockeyApp, Bit Stadium GmbH.
  * Copyright (c) 2011 Andreas Linde & Kent Sutherland.
  * All rights reserved.
  *
@@ -50,6 +50,8 @@
 
 // flags if the crashreporter should automatically send crashes without asking the user again
 // set this as bool in user defaults e.g. in the settings, if you want to let the user be able to set this on or off
+// or set it on runtime using the `autoSubmitCrashReport property` via
+// `[[BITCrashReportManager sharedCrashReportManager] setAutoSubmitCrashReport: YES];`
 #define kHockeySDKAutomaticallySendCrashReports @"HockeySDKAutomaticallySendCrashReports"
 
 
@@ -60,7 +62,7 @@ typedef enum {
   HockeyAPIReceivedEmptyResponse,
   HockeyAPIErrorWithStatusCode
 } HockeyErrorReason;
-extern NSString *const kHockeyErrorDomain;
+extern NSString *const __attribute__((unused)) kHockeyErrorDomain;
 
 
 typedef enum HockeyCrashAlertType {
@@ -112,6 +114,8 @@ typedef enum HockeyCrashReportStatus {
   BOOL                _didCrashInLastSession;
   BOOL                _analyzerStarted;
   NSMutableDictionary *_approvedCrashReports;
+
+  BOOL       _invokedReturnToMainApplication;
 }
 
 - (NSString *)modelVersion;
